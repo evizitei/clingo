@@ -136,7 +136,7 @@ unsigned Instantiator::priority() const { return callback->priority(); }
 void Queue::process(Output::OutputBase &out, Logger &log, std::function<bool()> shouldInterrupt) {
     bool empty = true;
     unsigned messageCount = 0;
-    const unsigned interruptCheckInterval = 1;
+    const unsigned interruptCheckInterval = 1000;
     do {
         empty = true;
         for (auto &queue : queues) {
