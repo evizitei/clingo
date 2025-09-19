@@ -167,7 +167,7 @@ void Program::ground(Context &context, Output::OutputBase &out, Logger &log) {
 #endif
             y->enqueue(q);
         }
-        q.process(out, log);
+        q.process(out, log, []() { return false; });
     }
     out.endGround(log);
     linearized_ = true;

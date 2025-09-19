@@ -48,6 +48,11 @@ class MessageLimitError : public std::runtime_error {
     MessageLimitError(char const *msg) : std::runtime_error(msg) {}
 };
 
+class GroundingInterrupt : public std::runtime_error {
+  public:
+    GroundingInterrupt(char const *msg) : std::runtime_error(msg) {}
+};
+
 // {{{1 declaration of Logger
 
 enum class Errors : int { Success = 0, Runtime = 1, Logic = 2, Bad_alloc = 3, Unknown = 4 };

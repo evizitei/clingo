@@ -26,6 +26,7 @@
 #define GRINGO_GROUND_INSTANTIATION_HH
 
 #include <gringo/output/output.hh>
+#include <functional>
 
 namespace Gringo {
 namespace Ground {
@@ -34,7 +35,7 @@ namespace Ground {
 
 struct Instantiator;
 struct Queue {
-    void process(Output::OutputBase &out, Logger &log);
+    void process(Output::OutputBase &out, Logger &log, std::function<bool()> shouldInterrupt);
     void enqueue(Instantiator &inst);
     void enqueue(Domain &dom);
 

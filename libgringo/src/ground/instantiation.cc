@@ -24,6 +24,7 @@
 
 #include <gringo/ground/instantiation.hh>
 #include <gringo/output/output.hh>
+#include <gringo/logger.hh>
 
 #define DEBUG_INSTANTIATION 0
 
@@ -132,8 +133,10 @@ unsigned Instantiator::priority() const { return callback->priority(); }
 // }}}
 // {{{ definition of Queue
 
-void Queue::process(Output::OutputBase &out, Logger &log) {
+void Queue::process(Output::OutputBase &out, Logger &log, std::function<bool()> shouldInterrupt) {
     bool empty = true;
+    unsigned messageCount = 0;
+    const unsigned interruptCheckInterval = 100;
     do {
         empty = true;
         for (auto &queue : queues) {
@@ -143,6 +146,9 @@ void Queue::process(Output::OutputBase &out, Logger &log) {
 #endif
                 queue.swap(current);
                 for (Instantiator &x : current) {
+                    if (++messageCount % interruptCheckInterval == 0 && shouldInterrupt()) {
+                        throw GroundingInterrupt("Grounding interrupted by user request");
+                    }
                     x.instantiate(out, log);
                     x.enqueued = false;
                 }
