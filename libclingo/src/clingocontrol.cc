@@ -288,7 +288,14 @@ void ClingoControl::ground(Control::GroundVec const &parts, Context *context) {
         LOG << "*********** intermediate program ***********" << std::endl << gPrg << std::endl;
         LOG << "************* grounded program *************" << std::endl;
         gPrg.prepare(params, *out_, logger_);
-        scripts_.withContext(context, [&, this](Context &ctx) { gPrg.ground(ctx, *out_, logger_); });
+        scripts_.withContext(context, [&, this](Context &ctx) {
+            auto start = std::chrono::steady_clock::now();
+            gPrg.ground(ctx, *out_, logger_, [start]() {
+                auto now = std::chrono::steady_clock::now();
+                auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - start).count();
+                return elapsed >= 3;
+            });
+        });
     }
 }
 
@@ -890,7 +897,12 @@ void ClingoControl::endAddBackend() {
     }
     added_atoms_.clear();
     added_facts_.clear();
-    backend_prg_->ground(scripts_, *out_, logger_);
+    auto start = std::chrono::steady_clock::now();
+    backend_prg_->ground(scripts_, *out_, logger_, [start]() {
+        auto now = std::chrono::steady_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - start).count();
+        return elapsed >= 3;
+    });
     backend_prg_.reset(nullptr);
     backend_ = nullptr;
 }

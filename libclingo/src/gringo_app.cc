@@ -133,7 +133,14 @@ struct IncrementalControl : Control, private Output::ASPIFOutBackend {
             LOG << "************* intermediate program *************" << std::endl << gPrg << std::endl;
             LOG << "*************** grounded program ***************" << std::endl;
             gPrg.prepare(params, out, logger_);
-            scripts.withContext(context, [&, this](Context &ctx) { gPrg.ground(ctx, out, logger_); });
+            scripts.withContext(context, [&, this](Context &ctx) {
+                auto start = std::chrono::steady_clock::now();
+                gPrg.ground(ctx, out, logger_, [start]() {
+                    auto now = std::chrono::steady_clock::now();
+                    auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - start).count();
+                    return elapsed >= 3;
+                });
+            });
         }
     }
     void add(std::string const &name, StringVec const &params, std::string const &part) override {
@@ -259,7 +266,12 @@ struct IncrementalControl : Control, private Output::ASPIFOutBackend {
         }
         added_atoms_.clear();
         added_facts_.clear();
-        backend_prg_->ground(scripts, out, logger_);
+        auto start = std::chrono::steady_clock::now();
+        backend_prg_->ground(scripts, out, logger_, [start]() {
+            auto now = std::chrono::steady_clock::now();
+            auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - start).count();
+            return elapsed >= 3;
+        });
         backend_prg_.reset(nullptr);
         backend_ = nullptr;
     }

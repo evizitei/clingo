@@ -144,7 +144,7 @@ void Program::prepare(Parameters const &params, Output::OutputBase &out, Logger 
     }
 }
 
-void Program::ground(Context &context, Output::OutputBase &out, Logger &log) {
+void Program::ground(Context &context, Output::OutputBase &out, Logger &log, std::function<bool()> shouldInterrupt) {
     Queue q;
     for (auto &x : stms_) {
         if (!linearized_) {
@@ -167,12 +167,7 @@ void Program::ground(Context &context, Output::OutputBase &out, Logger &log) {
 #endif
             y->enqueue(q);
         }
-        auto start = std::chrono::steady_clock::now();
-        q.process(out, log, [start]() {
-            auto now = std::chrono::steady_clock::now();
-            auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - start).count();
-            return elapsed >= 3;
-        });
+        q.process(out, log, shouldInterrupt);
     }
     out.endGround(log);
     linearized_ = true;

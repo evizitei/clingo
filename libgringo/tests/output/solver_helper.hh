@@ -102,7 +102,12 @@ inline bool ground(ClingoState &state) {
         Ground::Parameters params;
         params.add("base", {});
         gPrg.prepare(params, state.out, state.module);
-        gPrg.ground(state.context, state.out, state.module);
+        auto start = std::chrono::steady_clock::now();
+        gPrg.ground(state.context, state.out, state.module, [start]() {
+            auto now = std::chrono::steady_clock::now();
+            auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - start).count();
+            return elapsed >= 3;
+        });
         state.out.endStep({});
         return true;
     }

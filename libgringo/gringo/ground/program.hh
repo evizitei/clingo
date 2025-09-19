@@ -60,7 +60,7 @@ class Program {
     //! Prepare the ground program before grounding.
     void prepare(Parameters const &params, Output::OutputBase &out, Logger &log);
     //! Ground a prepared program.
-    void ground(Context &context, Output::OutputBase &out, Logger &log);
+    void ground(Context &context, Output::OutputBase &out, Logger &log, std::function<bool()> shouldInterrupt);
     const_iterator begin() const { return stms_.begin(); }
     const_iterator end() const { return stms_.end(); }
 
