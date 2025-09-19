@@ -167,7 +167,12 @@ void Program::ground(Context &context, Output::OutputBase &out, Logger &log) {
 #endif
             y->enqueue(q);
         }
-        q.process(out, log, []() { return false; });
+        auto start = std::chrono::steady_clock::now();
+        q.process(out, log, [start]() {
+            auto now = std::chrono::steady_clock::now();
+            auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - start).count();
+            return elapsed >= 3;
+        });
     }
     out.endGround(log);
     linearized_ = true;
