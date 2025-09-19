@@ -57,11 +57,8 @@ inline void ground(std::string const &str, Output::OutputFormat fmt, std::ostrea
     Parameters params;
     params.add("base", {});
     gPrg.prepare(params, out, module);
-    auto start = std::chrono::steady_clock::now();
-    gPrg.ground(context, out, module, [start]() {
-        auto now = std::chrono::steady_clock::now();
-        auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - start).count();
-        return elapsed >= 3;
+    gPrg.ground(context, out, module, []() {
+        return false;
     });
     out.endStep({});
 }

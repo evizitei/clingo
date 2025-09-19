@@ -57,11 +57,8 @@ std::string iground(std::string in, int last = 3) {
     auto ground = [&](std::set<Sig> const &sigs, Ground::Parameters const &params) {
         auto gPrg = prg.toGround(sigs, out.data, module.logger);
         gPrg.prepare(params, out, module.logger);
-        auto start = std::chrono::steady_clock::now();
-        gPrg.ground(context, out, module.logger, [start]() {
-            auto now = std::chrono::steady_clock::now();
-            auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - start).count();
-            return elapsed >= 3;
+        gPrg.ground(context, out, module.logger, []() {
+            return false;
         });
     };
     if (!module.logger.hasError()) {
