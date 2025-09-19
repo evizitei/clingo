@@ -97,7 +97,7 @@ bool main_loop(clingo_control_t *ctl, char const *const *files, size_t size, voi
     }
 
     // ground
-    if (!clingo_control_ground(ctl, parts, 1, NULL, NULL)) {
+    if (!clingo_control_ground(ctl, parts, 1, NULL, NULL, 0.0)) {
         goto error;
     }
 

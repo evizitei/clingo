@@ -290,7 +290,7 @@ void ClingoControl::ground(Control::GroundVec const &parts, Context *context) {
         gPrg.prepare(params, *out_, logger_);
         scripts_.withContext(context, [&, this](Context &ctx) {
             gPrg.ground(ctx, *out_, logger_, []() {
-                return false;
+                return true;
             });
         });
     }

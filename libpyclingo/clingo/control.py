@@ -526,6 +526,7 @@ class Control:
         self,
         parts: Sequence[Tuple[str, Sequence[Symbol]]] = (("base", ()),),
         context: Any = None,
+        timeout: float = 0.0
     ) -> None:
         """
         Ground the given list of program parts specified by tuples of names and
@@ -538,6 +539,8 @@ class Control:
         context
             A context object whose methods are called during grounding using
             the `@`-syntax (if omitted, those from the main module are used).
+        timeout
+            Timeout in seconds.
 
         Notes
         -----
@@ -563,7 +566,7 @@ class Control:
             c_part.size = len(part[1])
 
         _handle_error(
-            _lib.clingo_control_ground(self._rep, c_parts, len(parts), c_cb, c_data),
+            _lib.clingo_control_ground(self._rep, c_parts, len(parts), c_cb, c_data, timeout),
             data,
         )
 
