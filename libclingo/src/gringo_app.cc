@@ -109,7 +109,7 @@ struct IncrementalControl : Control, private Output::ASPIFOutBackend {
             throw std::runtime_error("parsing failed");
         }
     }
-    void ground(Control::GroundVec const &parts, Context *context) override {
+    void ground(Control::GroundVec const &parts, Context *context, double timeout) override {
         update();
         // NOTE: it would be cool to have assumptions in the lparse output
         if (parsed) {
@@ -134,9 +134,17 @@ struct IncrementalControl : Control, private Output::ASPIFOutBackend {
             LOG << "*************** grounded program ***************" << std::endl;
             gPrg.prepare(params, out, logger_);
             scripts.withContext(context, [&, this](Context &ctx) {
-                gPrg.ground(ctx, out, logger_, []() {
-                    return false;
-                });
+                auto start = std::chrono::steady_clock::now();
+                auto hasTimeout = timeout > 0.0;
+                auto timeoutDuration = std::chrono::duration<double>(timeout);
+                auto shouldInterrupt = [hasTimeout, start, timeoutDuration]() {
+                    if (!hasTimeout) {
+                        return false;
+                    }
+                    return std::chrono::steady_clock::now() - start >= timeoutDuration;
+                };
+                
+                gPrg.ground(ctx, out, logger_, shouldInterrupt);
             });
         }
     }
@@ -352,7 +360,7 @@ struct GringoApp : public Potassco::Application {
             Control::GroundVec parts;
             parts.emplace_back("base", SymVec{});
             inc.incremental_ = false;
-            inc.ground(parts, nullptr);
+            inc.ground(parts, nullptr, 0.0);
             inc.solve({nullptr, 0}, 0, nullptr)->get();
         }
     }

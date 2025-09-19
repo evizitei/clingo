@@ -93,7 +93,7 @@ struct Incmode {
             } else {
                 parts.push_back({"base", {}});
             }
-            ctl_.ground(parts, nullptr);
+            ctl_.ground(parts, nullptr, 0.0);
             ctl_.assignExternal(Symbol::createFun("query", {Symbol::createNum(step)}), Potassco::Value_t::True);
             res = ctl_.solve({nullptr, 0}, 0)->get();
             step += 1;

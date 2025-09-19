@@ -263,7 +263,7 @@ bool ClingoControl::update() {
     return true;
 }
 
-void ClingoControl::ground(Control::GroundVec const &parts, Context *context) {
+void ClingoControl::ground(Control::GroundVec const &parts, Context *context, double timeout) {
     if (!update()) {
         return;
     }
@@ -289,9 +289,16 @@ void ClingoControl::ground(Control::GroundVec const &parts, Context *context) {
         LOG << "************* grounded program *************" << std::endl;
         gPrg.prepare(params, *out_, logger_);
         scripts_.withContext(context, [&, this](Context &ctx) {
-            gPrg.ground(ctx, *out_, logger_, []() {
-                return true;
-            });
+            auto start = std::chrono::steady_clock::now();
+            auto timeoutDuration = std::chrono::duration<double>(timeout);
+            auto hasTimeout = timeout > 0.0;
+            auto shouldInterrupt = [hasTimeout, start, timeoutDuration]() {
+                if (!hasTimeout) {
+                    return false;
+                }
+                return std::chrono::steady_clock::now() - start >= timeoutDuration;
+            };
+            gPrg.ground(ctx, *out_, logger_, shouldInterrupt);
         });
     }
 }
@@ -326,7 +333,7 @@ void ClingoControl::main(IClingoApp &app, StringVec const &files, const ClingoOp
             claspConfig_.releaseOptions();
             Control::GroundVec parts;
             parts.emplace_back("base", SymVec{});
-            ground(parts, nullptr);
+            ground(parts, nullptr, 0.0);
             solve({nullptr, 0}, 0, nullptr)->get();
         }
     }

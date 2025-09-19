@@ -250,7 +250,7 @@ struct clingo_control {
     virtual Gringo::ConfigProxy &getConf() = 0;
     virtual Gringo::SymbolicAtoms const &getDomain() const = 0;
 
-    virtual void ground(GroundVec const &vec, Gringo::Context *context) = 0;
+    virtual void ground(GroundVec const &vec, Gringo::Context *context, double timeout) = 0;
     virtual Gringo::USolveFuture solve(Assumptions assumptions, clingo_solve_mode_bitset_t mode,
                                        Gringo::USolveEventHandler cb = nullptr) = 0;
     virtual void interrupt() = 0;

@@ -9893,6 +9893,7 @@ _cffi_f_clingo_control_ground(PyObject *self, PyObject *args)
   size_t x2;
   _Bool(* x3)(clingo_location_t const *, char const *, uint64_t const *, size_t, void *, _Bool(*)(uint64_t const *, size_t, void *), void *);
   void * x4;
+  double x5;
   Py_ssize_t datasize;
   struct _cffi_freeme_s *large_args_free = NULL;
   _Bool result;
@@ -9942,7 +9943,7 @@ _cffi_f_clingo_control_ground(PyObject *self, PyObject *args)
       return NULL;
   }
 
-  x5 = _cffi_to_c_double(arg5, double);
+  x5 = _cffi_to_c_double(arg5);
   if (x5 == (double)-1 && PyErr_Occurred())
     return NULL;
 
