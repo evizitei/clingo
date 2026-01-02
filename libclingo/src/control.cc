@@ -1965,7 +1965,7 @@ struct ClingoContext : Context {
 } // namespace
 
 extern "C" bool clingo_control_ground(clingo_control_t *ctl, clingo_part_t const *vec, size_t n,
-                                      clingo_ground_callback_t cb, void *data) {
+                                      clingo_ground_callback_t cb, void *data, double timeout) {
     GRINGO_CLINGO_TRY {
         Control::GroundVec gv;
         gv.reserve(n);
@@ -1978,7 +1978,7 @@ extern "C" bool clingo_control_ground(clingo_control_t *ctl, clingo_part_t const
             gv.emplace_back(it->name, params);
         }
         ClingoContext cctx(ctl, cb, data);
-        ctl->ground(gv, cb ? &cctx : nullptr);
+        ctl->ground(gv, cb ? &cctx : nullptr, timeout);
     }
     GRINGO_CLINGO_CATCH;
 }

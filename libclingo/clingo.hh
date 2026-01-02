@@ -1916,7 +1916,7 @@ class Control {
     Control &operator=(Control const &c) = delete;
     ~Control() noexcept;
     void add(char const *name, StringSpan params, char const *part);
-    void ground(PartSpan parts, GroundCallback cb = nullptr);
+    void ground(PartSpan parts, GroundCallback cb = nullptr, double timeout = 0.0);
     SolveHandle solve(LiteralSpan assumptions, SolveEventHandler *handler = nullptr, bool asynchronous = false,
                       bool yield = true);
     SolveHandle solve(SymbolicLiteralSpan assumptions = {}, SolveEventHandler *handler = nullptr,
@@ -4237,7 +4237,7 @@ inline void Control::add(char const *name, StringSpan params, char const *part) 
     Detail::handle_error(clingo_control_add(*impl_, name, params.begin(), params.size(), part));
 }
 
-inline void Control::ground(PartSpan parts, GroundCallback cb) {
+inline void Control::ground(PartSpan parts, GroundCallback cb, double timeout) {
     using Data = std::pair<GroundCallback &, Detail::AssignOnce &>;
     Data data(cb, impl_->ptr);
     impl_->ptr.reset();
@@ -4262,7 +4262,7 @@ inline void Control::ground(PartSpan parts, GroundCallback cb) {
         CLINGO_CALLBACK_CATCH(d.second);
     };
     Detail::handle_error(clingo_control_ground(*impl_, Detail::cast<clingo_part_t const *>(parts.begin()), parts.size(),
-                                               cb ? ccb : nullptr, &data),
+                                               cb ? ccb : nullptr, &data, timeout),
                          data.second);
 }
 

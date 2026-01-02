@@ -10617,9 +10617,9 @@ _cffi_f_clingo_control_get_enable_enumeration_assumption(PyObject *self, PyObjec
 #  define _cffi_f_clingo_control_get_enable_enumeration_assumption _cffi_d_clingo_control_get_enable_enumeration_assumption
 #endif
 
-static _Bool _cffi_d_clingo_control_ground(clingo_control_t * x0, clingo_part_t const * x1, size_t x2, _Bool(* x3)(clingo_location_t const *, char const *, uint64_t const *, size_t, void *, _Bool(*)(uint64_t const *, size_t, void *), void *), void * x4)
+static _Bool _cffi_d_clingo_control_ground(clingo_control_t * x0, clingo_part_t const * x1, size_t x2, _Bool(* x3)(clingo_location_t const *, char const *, uint64_t const *, size_t, void *, _Bool(*)(uint64_t const *, size_t, void *), void *), void * x4, double x5)
 {
-  return clingo_control_ground(x0, x1, x2, x3, x4);
+  return clingo_control_ground(x0, x1, x2, x3, x4, x5);
 }
 #ifndef PYPY_VERSION
 static PyObject *
@@ -10630,6 +10630,7 @@ _cffi_f_clingo_control_ground(PyObject *self, PyObject *args)
   size_t x2;
   _Bool(* x3)(clingo_location_t const *, char const *, uint64_t const *, size_t, void *, _Bool(*)(uint64_t const *, size_t, void *), void *);
   void * x4;
+  double x5;
   Py_ssize_t datasize;
   struct _cffi_freeme_s *large_args_free = NULL;
   _Bool result;
@@ -10639,8 +10640,9 @@ _cffi_f_clingo_control_ground(PyObject *self, PyObject *args)
   PyObject *arg2;
   PyObject *arg3;
   PyObject *arg4;
+  PyObject *arg5;
 
-  if (!PyArg_UnpackTuple(args, "clingo_control_ground", 5, 5, &arg0, &arg1, &arg2, &arg3, &arg4))
+  if (!PyArg_UnpackTuple(args, "clingo_control_ground", 6, 6, &arg0, &arg1, &arg2, &arg3, &arg4, &arg5))
     return NULL;
 
   datasize = _cffi_prepare_pointer_call_argument(
@@ -10678,9 +10680,13 @@ _cffi_f_clingo_control_ground(PyObject *self, PyObject *args)
       return NULL;
   }
 
+  x5 = _cffi_to_c_double(arg5);
+  if (x5 == (double)-1 && PyErr_Occurred())
+    return NULL;
+
   Py_BEGIN_ALLOW_THREADS
   _cffi_restore_errno();
-  { result = clingo_control_ground(x0, x1, x2, x3, x4); }
+  { result = clingo_control_ground(x0, x1, x2, x3, x4, x5); }
   _cffi_save_errno();
   Py_END_ALLOW_THREADS
 

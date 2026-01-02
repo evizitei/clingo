@@ -3058,6 +3058,7 @@ CLINGO_VISIBILITY_DEFAULT bool clingo_control_add(clingo_control_t *control, cha
 //! @param[in] parts_size size of the parts array
 //! @param[in] ground_callback callback to implement external functions
 //! @param[in] ground_callback_data user data for ground_callback
+//! @param[in] timeout grounding budget in thousands of queue items processed; set to 0 for unlimited
 //! @return whether the call was successful; might set one of the following error codes:
 //! - ::clingo_error_bad_alloc
 //! - error code of ground callback
@@ -3065,7 +3066,7 @@ CLINGO_VISIBILITY_DEFAULT bool clingo_control_add(clingo_control_t *control, cha
 //! @see clingo_part
 CLINGO_VISIBILITY_DEFAULT bool clingo_control_ground(clingo_control_t *control, clingo_part_t const *parts,
                                                      size_t parts_size, clingo_ground_callback_t ground_callback,
-                                                     void *ground_callback_data);
+                                                     void *ground_callback_data, double timeout);
 
 //! @}
 

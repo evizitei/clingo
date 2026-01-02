@@ -1,5 +1,16 @@
 # Clingo: A grounder and solver for logic programs
 
+## Important: this is a private fork (not upstream)
+
+This repository is **not** the main clingo repository and these changes are **not intended to be merged upstream**.
+
+Upstream clingo 6 is expected to have proper async grounding capabilities (see
+https://github.com/potassco/clingo/pull/580) based on the original discussion in
+https://github.com/potassco/clingo/issues/570.
+
+This fork is purely a hack to allow **interrupting grounding in clingo 5.x** via a deterministic “compute budget”.
+If you need to wire this fork into a separate Python project for local/CI/container use, start with `INTEGRATION.md`.
+
 Clingo is part of the [Potassco](https://potassco.org) project for *Answer Set
 Programming* (ASP).  ASP offers a simple and powerful modeling language to
 describe combinatorial problems as *logic programs*.  The *clingo* system then

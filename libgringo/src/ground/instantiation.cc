@@ -24,6 +24,7 @@
 
 #include <gringo/ground/instantiation.hh>
 #include <gringo/output/output.hh>
+#include <gringo/logger.hh>
 
 #define DEBUG_INSTANTIATION 0
 
@@ -132,8 +133,9 @@ unsigned Instantiator::priority() const { return callback->priority(); }
 // }}}
 // {{{ definition of Queue
 
-void Queue::process(Output::OutputBase &out, Logger &log) {
+void Queue::process(Output::OutputBase &out, Logger &log, uint64_t maxQueueItems) {
     bool empty = true;
+    uint64_t queueItemCount = 0;
     do {
         empty = true;
         for (auto &queue : queues) {
@@ -143,6 +145,12 @@ void Queue::process(Output::OutputBase &out, Logger &log) {
 #endif
                 queue.swap(current);
                 for (Instantiator &x : current) {
+                    ++queueItemCount;
+                    if (maxQueueItems > 0 && queueItemCount > maxQueueItems) {
+                        std::ostringstream oss;
+                        oss << "Grounding budget exceeded (" << maxQueueItems << " queue items)";
+                        throw GroundingInterrupt(oss.str());
+                    }
                     x.instantiate(out, log);
                     x.enqueued = false;
                 }

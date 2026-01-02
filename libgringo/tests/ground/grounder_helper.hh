@@ -57,7 +57,7 @@ inline void ground(std::string const &str, Output::OutputFormat fmt, std::ostrea
     Parameters params;
     params.add("base", {});
     gPrg.prepare(params, out, module);
-    gPrg.ground(context, out, module);
+    gPrg.ground(context, out, module, 0);
     out.endStep({});
 }
 

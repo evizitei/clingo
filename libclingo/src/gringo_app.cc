@@ -35,6 +35,7 @@
 #include <gringo/input/program.hh>
 #include <gringo/input/programbuilder.hh>
 #include <gringo/logger.hh>
+#include <cmath>
 #include <iostream>
 #include <potassco/application.h>
 #include <potassco/program_opts/typed_value.h>
@@ -109,7 +110,7 @@ struct IncrementalControl : Control, private Output::ASPIFOutBackend {
             throw std::runtime_error("parsing failed");
         }
     }
-    void ground(Control::GroundVec const &parts, Context *context) override {
+    void ground(Control::GroundVec const &parts, Context *context, double timeout) override {
         update();
         // NOTE: it would be cool to have assumptions in the lparse output
         if (parsed) {
@@ -133,7 +134,13 @@ struct IncrementalControl : Control, private Output::ASPIFOutBackend {
             LOG << "************* intermediate program *************" << std::endl << gPrg << std::endl;
             LOG << "*************** grounded program ***************" << std::endl;
             gPrg.prepare(params, out, logger_);
-            scripts.withContext(context, [&, this](Context &ctx) { gPrg.ground(ctx, out, logger_); });
+            uint64_t maxQueueItems = 0;
+            if (timeout > 0.0) {
+                maxQueueItems = static_cast<uint64_t>(std::ceil(timeout * 1000.0));
+            }
+            scripts.withContext(context, [&, this, maxQueueItems](Context &ctx) {
+                gPrg.ground(ctx, out, logger_, maxQueueItems);
+            });
         }
     }
     void add(std::string const &name, StringVec const &params, std::string const &part) override {
@@ -259,7 +266,7 @@ struct IncrementalControl : Control, private Output::ASPIFOutBackend {
         }
         added_atoms_.clear();
         added_facts_.clear();
-        backend_prg_->ground(scripts, out, logger_);
+        backend_prg_->ground(scripts, out, logger_, 0);
         backend_prg_.reset(nullptr);
         backend_ = nullptr;
     }
@@ -346,7 +353,7 @@ struct GringoApp : public Potassco::Application {
             Control::GroundVec parts;
             parts.emplace_back("base", SymVec{});
             inc.incremental_ = false;
-            inc.ground(parts, nullptr);
+            inc.ground(parts, nullptr, 0.0);
             inc.solve({nullptr, 0}, 0, nullptr)->get();
         }
     }

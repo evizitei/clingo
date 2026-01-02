@@ -25,6 +25,7 @@
 #ifndef GRINGO_GROUND_PROGRAM_HH
 #define GRINGO_GROUND_PROGRAM_HH
 
+#include <cstdint>
 #include <gringo/ground/statement.hh>
 
 namespace Gringo {
@@ -60,7 +61,8 @@ class Program {
     //! Prepare the ground program before grounding.
     void prepare(Parameters const &params, Output::OutputBase &out, Logger &log);
     //! Ground a prepared program.
-    void ground(Context &context, Output::OutputBase &out, Logger &log);
+    //! @param maxQueueItems Maximum number of queue items processed; 0 means unlimited.
+    void ground(Context &context, Output::OutputBase &out, Logger &log, uint64_t maxQueueItems);
     const_iterator begin() const { return stms_.begin(); }
     const_iterator end() const { return stms_.end(); }
 

@@ -3363,6 +3363,7 @@ struct ControlWrap : Object<ControlWrap> {
         auto &ctl = get_self(L).ctl;
         luaL_checktype(L, 2, LUA_TTABLE);
         int context = !lua_isnone(L, 3) && !lua_isnil(L, 3) ? 3 : 0;
+        double timeout = !lua_isnone(L, 4) ? luaL_checknumber(L, 4) : 0.0;
         using symbol_vector = std::vector<symbol_wrapper>;
         auto cpp_parts = AnyWrap::new_<std::vector<std::pair<std::string, symbol_vector>>>(L);
         luaToCpp(L, 2, *cpp_parts);
@@ -3374,7 +3375,7 @@ struct ControlWrap : Object<ControlWrap> {
         }
         Context ctx{L, context};
         handle_c_error(L, clingo_control_ground(ctl, parts, cpp_parts->size(), context ? on_context : nullptr,
-                                                context ? &ctx : nullptr));
+                                                context ? &ctx : nullptr, timeout));
         return 0;
     }
     static int add(lua_State *L) {

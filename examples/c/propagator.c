@@ -395,7 +395,7 @@ int main(int argc, char const **argv) {
     }
 
     // ground the pigeon part
-    if (!clingo_control_ground(ctl, parts, 1, NULL, NULL)) {
+    if (!clingo_control_ground(ctl, parts, 1, NULL, NULL, 0.0)) {
         goto error;
     }
 

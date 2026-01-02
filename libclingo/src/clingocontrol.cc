@@ -35,6 +35,7 @@
 #include <clasp/weight_constraint.h>
 #include <clingo/incmode.hh>
 #include <csignal>
+#include <cmath>
 #include <gringo/input/programbuilder.hh>
 #include <potassco/basic_types.h>
 #include <potassco/program_opts/typed_value.h>
@@ -263,7 +264,7 @@ bool ClingoControl::update() {
     return true;
 }
 
-void ClingoControl::ground(Control::GroundVec const &parts, Context *context) {
+void ClingoControl::ground(Control::GroundVec const &parts, Context *context, double timeout) {
     if (!update()) {
         return;
     }
@@ -288,7 +289,13 @@ void ClingoControl::ground(Control::GroundVec const &parts, Context *context) {
         LOG << "*********** intermediate program ***********" << std::endl << gPrg << std::endl;
         LOG << "************* grounded program *************" << std::endl;
         gPrg.prepare(params, *out_, logger_);
-        scripts_.withContext(context, [&, this](Context &ctx) { gPrg.ground(ctx, *out_, logger_); });
+        uint64_t maxQueueItems = 0;
+        if (timeout > 0.0) {
+            maxQueueItems = static_cast<uint64_t>(std::ceil(timeout * 1000.0));
+        }
+        scripts_.withContext(context, [&, this, maxQueueItems](Context &ctx) {
+            gPrg.ground(ctx, *out_, logger_, maxQueueItems);
+        });
     }
 }
 
@@ -322,7 +329,7 @@ void ClingoControl::main(IClingoApp &app, StringVec const &files, const ClingoOp
             claspConfig_.releaseOptions();
             Control::GroundVec parts;
             parts.emplace_back("base", SymVec{});
-            ground(parts, nullptr);
+            ground(parts, nullptr, 0.0);
             solve({nullptr, 0}, 0, nullptr)->get();
         }
     }
@@ -890,7 +897,7 @@ void ClingoControl::endAddBackend() {
     }
     added_atoms_.clear();
     added_facts_.clear();
-    backend_prg_->ground(scripts_, *out_, logger_);
+    backend_prg_->ground(scripts_, *out_, logger_, 0);
     backend_prg_.reset(nullptr);
     backend_ = nullptr;
 }

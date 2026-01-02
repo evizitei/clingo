@@ -275,7 +275,7 @@ class ClingoControl : public clingo_control,
     // {{{2 Control interface
 
     SymbolicAtoms const &getDomain() const override;
-    void ground(Control::GroundVec const &vec, Context *ctx) override;
+    void ground(Control::GroundVec const &vec, Context *ctx, double timeout) override;
     void add(std::string const &name, Gringo::StringVec const &params, std::string const &part) override;
     void load(std::string const &filename) override;
     void load_aspif(Potassco::Span<char const *> files) override;
