@@ -35,6 +35,7 @@
 #include <clasp/weight_constraint.h>
 #include <clingo/incmode.hh>
 #include <csignal>
+#include <cmath>
 #include <gringo/input/programbuilder.hh>
 #include <potassco/basic_types.h>
 #include <potassco/program_opts/typed_value.h>
@@ -288,17 +289,12 @@ void ClingoControl::ground(Control::GroundVec const &parts, Context *context, do
         LOG << "*********** intermediate program ***********" << std::endl << gPrg << std::endl;
         LOG << "************* grounded program *************" << std::endl;
         gPrg.prepare(params, *out_, logger_);
-        scripts_.withContext(context, [&, this](Context &ctx) {
-            auto start = std::chrono::steady_clock::now();
-            auto timeoutDuration = std::chrono::duration<double>(timeout);
-            auto hasTimeout = timeout > 0.0;
-            auto shouldInterrupt = [hasTimeout, start, timeoutDuration]() {
-                if (!hasTimeout) {
-                    return false;
-                }
-                return std::chrono::steady_clock::now() - start >= timeoutDuration;
-            };
-            gPrg.ground(ctx, *out_, logger_, shouldInterrupt);
+        uint64_t maxQueueItems = 0;
+        if (timeout > 0.0) {
+            maxQueueItems = static_cast<uint64_t>(std::ceil(timeout * 1000.0));
+        }
+        scripts_.withContext(context, [&, this, maxQueueItems](Context &ctx) {
+            gPrg.ground(ctx, *out_, logger_, maxQueueItems);
         });
     }
 }
@@ -901,10 +897,7 @@ void ClingoControl::endAddBackend() {
     }
     added_atoms_.clear();
     added_facts_.clear();
-    auto shouldInterrupt = []() {
-        return false;
-    };
-    backend_prg_->ground(scripts_, *out_, logger_, shouldInterrupt);
+    backend_prg_->ground(scripts_, *out_, logger_, 0);
     backend_prg_.reset(nullptr);
     backend_ = nullptr;
 }

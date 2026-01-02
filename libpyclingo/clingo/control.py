@@ -540,7 +540,7 @@ class Control:
             A context object whose methods are called during grounding using
             the `@`-syntax (if omitted, those from the main module are used).
         timeout
-            Timeout in seconds.
+            Grounding budget in thousands of queue items processed (use `0.0` for unlimited).
 
         Notes
         -----

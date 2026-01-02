@@ -25,8 +25,8 @@
 #ifndef GRINGO_GROUND_INSTANTIATION_HH
 #define GRINGO_GROUND_INSTANTIATION_HH
 
+#include <cstdint>
 #include <gringo/output/output.hh>
-#include <functional>
 
 namespace Gringo {
 namespace Ground {
@@ -35,7 +35,8 @@ namespace Ground {
 
 struct Instantiator;
 struct Queue {
-    void process(Output::OutputBase &out, Logger &log, std::function<bool()> shouldInterrupt);
+    //! @param maxQueueItems Maximum number of queue items processed; 0 means unlimited.
+    void process(Output::OutputBase &out, Logger &log, uint64_t maxQueueItems);
     void enqueue(Instantiator &inst);
     void enqueue(Domain &dom);
 

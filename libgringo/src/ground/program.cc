@@ -144,7 +144,7 @@ void Program::prepare(Parameters const &params, Output::OutputBase &out, Logger 
     }
 }
 
-void Program::ground(Context &context, Output::OutputBase &out, Logger &log, std::function<bool()> shouldInterrupt) {
+void Program::ground(Context &context, Output::OutputBase &out, Logger &log, uint64_t maxQueueItems) {
     Queue q;
     for (auto &x : stms_) {
         if (!linearized_) {
@@ -167,7 +167,7 @@ void Program::ground(Context &context, Output::OutputBase &out, Logger &log, std
 #endif
             y->enqueue(q);
         }
-        q.process(out, log, shouldInterrupt);
+        q.process(out, log, maxQueueItems);
     }
     out.endGround(log);
     linearized_ = true;

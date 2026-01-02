@@ -133,10 +133,9 @@ unsigned Instantiator::priority() const { return callback->priority(); }
 // }}}
 // {{{ definition of Queue
 
-void Queue::process(Output::OutputBase &out, Logger &log, std::function<bool()> shouldInterrupt) {
+void Queue::process(Output::OutputBase &out, Logger &log, uint64_t maxQueueItems) {
     bool empty = true;
-    unsigned messageCount = 0;
-    const unsigned interruptCheckInterval = 1000;
+    uint64_t queueItemCount = 0;
     do {
         empty = true;
         for (auto &queue : queues) {
@@ -146,8 +145,11 @@ void Queue::process(Output::OutputBase &out, Logger &log, std::function<bool()> 
 #endif
                 queue.swap(current);
                 for (Instantiator &x : current) {
-                    if (++messageCount % interruptCheckInterval == 0 && shouldInterrupt()) {
-                        throw GroundingInterrupt("Grounding interrupted by user request");
+                    ++queueItemCount;
+                    if (maxQueueItems > 0 && queueItemCount > maxQueueItems) {
+                        std::ostringstream oss;
+                        oss << "Grounding budget exceeded (" << maxQueueItems << " queue items)";
+                        throw GroundingInterrupt(oss.str());
                     }
                     x.instantiate(out, log);
                     x.enqueued = false;

@@ -30,6 +30,7 @@
 #include <functional>
 #include <memory>
 #include <sstream>
+#include <string>
 #include <stdexcept>
 
 #include <iostream>
@@ -51,6 +52,7 @@ class MessageLimitError : public std::runtime_error {
 class GroundingInterrupt : public std::runtime_error {
   public:
     GroundingInterrupt(char const *msg) : std::runtime_error(msg) {}
+    GroundingInterrupt(std::string const &msg) : std::runtime_error(msg) {}
 };
 
 // {{{1 declaration of Logger

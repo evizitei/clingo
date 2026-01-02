@@ -35,6 +35,7 @@
 #include <gringo/input/program.hh>
 #include <gringo/input/programbuilder.hh>
 #include <gringo/logger.hh>
+#include <cmath>
 #include <iostream>
 #include <potassco/application.h>
 #include <potassco/program_opts/typed_value.h>
@@ -133,18 +134,12 @@ struct IncrementalControl : Control, private Output::ASPIFOutBackend {
             LOG << "************* intermediate program *************" << std::endl << gPrg << std::endl;
             LOG << "*************** grounded program ***************" << std::endl;
             gPrg.prepare(params, out, logger_);
-            scripts.withContext(context, [&, this](Context &ctx) {
-                auto start = std::chrono::steady_clock::now();
-                auto hasTimeout = timeout > 0.0;
-                auto timeoutDuration = std::chrono::duration<double>(timeout);
-                auto shouldInterrupt = [hasTimeout, start, timeoutDuration]() {
-                    if (!hasTimeout) {
-                        return false;
-                    }
-                    return std::chrono::steady_clock::now() - start >= timeoutDuration;
-                };
-                
-                gPrg.ground(ctx, out, logger_, shouldInterrupt);
+            uint64_t maxQueueItems = 0;
+            if (timeout > 0.0) {
+                maxQueueItems = static_cast<uint64_t>(std::ceil(timeout * 1000.0));
+            }
+            scripts.withContext(context, [&, this, maxQueueItems](Context &ctx) {
+                gPrg.ground(ctx, out, logger_, maxQueueItems);
             });
         }
     }
@@ -271,9 +266,7 @@ struct IncrementalControl : Control, private Output::ASPIFOutBackend {
         }
         added_atoms_.clear();
         added_facts_.clear();
-        backend_prg_->ground(scripts, out, logger_, []() {
-            return false;
-        });
+        backend_prg_->ground(scripts, out, logger_, 0);
         backend_prg_.reset(nullptr);
         backend_ = nullptr;
     }

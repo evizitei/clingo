@@ -25,6 +25,7 @@
 #include "gringo/ground/program.hh"
 #include "gringo/input/nongroundparser.hh"
 #include "gringo/input/program.hh"
+#include "gringo/logger.hh"
 #include "gringo/output/output.hh"
 
 #include "tests/tests.hh"
@@ -39,7 +40,7 @@ using namespace Gringo::IO;
 
 namespace {
 
-std::string ground(std::string const &str, std::initializer_list<std::string> filter = {""}) {
+std::string ground(std::string const &str, std::initializer_list<std::string> filter = {""}, uint64_t maxQueueItems = 0) {
     std::regex delayedDef("^#delayed\\(([0-9]+)\\) <=> (.*)$");
     std::regex delayedOcc("#delayed\\(([0-9]+)\\)");
     std::map<std::string, std::string> delayedMap;
@@ -62,9 +63,7 @@ std::string ground(std::string const &str, std::initializer_list<std::string> fi
     Parameters params;
     params.add("base", {});
     gPrg.prepare(params, out, module);
-    gPrg.ground(context, out, module, []() {
-        return false;
-    });
+    gPrg.ground(context, out, module, maxQueueItems);
     out.endStep({});
 
     std::string line;
@@ -321,6 +320,14 @@ TEST_CASE("ground-instantiation", "[ground]") {
                                     "c(X) :- b(X), a(X).\n"
                                     "d(X) :- c(X), b(X), a(X).\n"
                                     "p(X+1) :- a(X), b(X), c(X), d(X).\n"));
+    }
+
+    SECTION("budget") {
+        REQUIRE_THROWS_AS(ground("p(0).\n"
+                                 "a(X) :- p(X), X < 100.\n"
+                                 "p(X+1) :- a(X).\n",
+                                 {""}, 1),
+                          Gringo::GroundingInterrupt);
     }
 
     SECTION("instantiate") {
